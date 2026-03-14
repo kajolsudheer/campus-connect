@@ -1,0 +1,234 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  STUDENT
+  FACULTY
+  ADMIN
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  role      Role
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  studentProfile StudentProfile?
+  facultyProfile FacultyProfile?
+  
+  notifications  EventNotification[] @relation("UploadedBy")
+  attendances    Attendance[]        @relation("StudentAttendance")
+  markedAtt      Attendance[]        @relation("MarkedByFaculty")
+  assignments    Assignment[]        @relation("FacultyAssignments")
+  submissions    Submission[]        @relation("StudentSubmissions")
+  materials      StudyMaterial[]     @relation("FacultyMaterials")
+  leaves         LeaveRequest[]      @relation("StudentLeaves")
+  fees           Fee[]               @relation("StudentFees")
+  examResults    ExamResult[]        @relation("StudentResults")
+  examRegs       ExamRegistration[]  @relation("StudentRegs")
+  sentMsgs       HelpdeskMessage[]   @relation("SentMessages")
+  recvMsgs       HelpdeskMessage[]   @relation("ReceivedMessages")
+}
+
+model StudentProfile {
+  id             String @id @default(uuid())
+  userId         String @unique
+  user           User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  admissionNo    String @unique
+  department     String
+  year           Int
+  profilePhoto   String?
+}
+
+model FacultyProfile {
+  id         String @id @default(uuid())
+  userId     String @unique
+  user       User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  department String
+  designation String?
+}
+
+model Course {
+  id          String @id @default(uuid())
+  name        String
+  code        String @unique
+  department  String
+  year        Int
+
+  attendances Attendance[]
+  timetables  Timetable[]
+  assignments Assignment[]
+  materials   StudyMaterial[]
+  examResults ExamResult[]
+}
+
+model Attendance {
+  id          String   @id @default(uuid())
+  studentId   String
+  student     User     @relation("StudentAttendance", fields: [studentId], references: [id])
+  courseId    String
+  course      Course   @relation(fields: [courseId], references: [id])
+  date        DateTime
+  hour        Int
+  status      Boolean  // true for present, false for absent
+  markedById  String
+  markedBy    User     @relation("MarkedByFaculty", fields: [markedById], references: [id])
+  createdAt   DateTime @default(now())
+
+  @@unique([studentId, courseId, date, hour])
+}
+
+enum TimetableType {
+  CLASS
+  EXAM
+}
+
+model Timetable {
+  id          String        @id @default(uuid())
+  courseId    String
+  course      Course        @relation(fields: [courseId], references: [id])
+  type        TimetableType @default(CLASS)
+  dayOfWeek   Int           // 1 for Monday, 7 for Sunday
+  startTime   String        // e.g. "09:00"
+  endTime     String        // e.g. "10:00"
+  room        String?
+  examDate    DateTime?     // For EXAM type
+}
+
+model Assignment {
+  id          String   @id @default(uuid())
+  courseId    String
+  course      Course   @relation(fields: [courseId], references: [id])
+  title       String
+  description String?
+  dueDate     DateTime
+  fileUrl     String?
+  createdById String
+  createdBy   User     @relation("FacultyAssignments", fields: [createdById], references: [id])
+  createdAt   DateTime @default(now())
+
+  submissions Submission[]
+}
+
+model Submission {
+  id           String     @id @default(uuid())
+  assignmentId String
+  assignment   Assignment @relation(fields: [assignmentId], references: [id])
+  studentId    String
+  student      User       @relation("StudentSubmissions", fields: [studentId], references: [id])
+  fileUrl      String
+  grade        String?
+  submittedAt  DateTime   @default(now())
+
+  @@unique([assignmentId, studentId])
+}
+
+model StudyMaterial {
+  id          String   @id @default(uuid())
+  courseId    String
+  course      Course   @relation(fields: [courseId], references: [id])
+  title       String
+  docUrl      String
+  uploadedById String
+  uploadedBy  User     @relation("FacultyMaterials", fields: [uploadedById], references: [id])
+  createdAt   DateTime @default(now())
+}
+
+enum ExamType {
+  INTERNAL
+  SEMESTER_END
+  SUPPLEMENTARY
+}
+
+model ExamResult {
+  id        String   @id @default(uuid())
+  studentId String
+  student   User     @relation("StudentResults", fields: [studentId], references: [id])
+  courseId  String
+  course    Course   @relation(fields: [courseId], references: [id])
+  examType  ExamType
+  marks     Float
+  maxMarks  Float
+  date      DateTime @default(now())
+
+  @@unique([studentId, courseId, examType])
+}
+
+enum ExamRegStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model ExamRegistration {
+  id        String       @id @default(uuid())
+  studentId String
+  student   User         @relation("StudentRegs", fields: [studentId], references: [id])
+  examType  ExamType     // Assuming SEMESTER_END or SUPPLEMENTARY
+  monthYear String       // e.g. "May 2026"
+  status    ExamRegStatus @default(PENDING)
+  createdAt DateTime     @default(now())
+}
+
+model EventNotification {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  fileUrl     String?  // Optional attachment/image
+  uploadedById String
+  uploadedBy  User     @relation("UploadedBy", fields: [uploadedById], references: [id])
+  createdAt   DateTime @default(now())
+}
+
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model LeaveRequest {
+  id        String      @id @default(uuid())
+  studentId String
+  student   User        @relation("StudentLeaves", fields: [studentId], references: [id])
+  reason    String
+  fromDate  DateTime
+  toDate    DateTime
+  status    LeaveStatus @default(PENDING)
+  createdAt DateTime    @default(now())
+}
+
+enum FeeStatus {
+  PENDING
+  PAID
+}
+
+model Fee {
+  id        String    @id @default(uuid())
+  studentId String
+  student   User      @relation("StudentFees", fields: [studentId], references: [id])
+  title     String    // e.g. "Semester 1 Tuition"
+  amount    Float
+  dueDate   DateTime
+  status    FeeStatus @default(PENDING)
+  paidAt    DateTime?
+  createdAt DateTime  @default(now())
+}
+
+model HelpdeskMessage {
+  id         String   @id @default(uuid())
+  senderId   String
+  sender     User     @relation("SentMessages", fields: [senderId], references: [id])
+  receiverId String
+  receiver   User     @relation("ReceivedMessages", fields: [receiverId], references: [id])
+  message    String
+  createdAt  DateTime @default(now())
+}

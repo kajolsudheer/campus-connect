@@ -1,0 +1,118 @@
+.timetable-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+}
+
+.timetable-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: rgba(0,0,0,0.05);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid rgba(0,0,0,0.1);
+}
+
+.time-headers, .timetable-row {
+  display: grid;
+  grid-template-columns: 100px repeat(5, 1fr);
+  gap: 2px;
+}
+
+.time-slot {
+  background: var(--bg-surface);
+  padding: var(--spacing-4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-weight: 500;
+}
+
+.header-cell {
+  background: var(--color-primary);
+  color: var(--text-inverse);
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.row-header {
+  font-weight: 600;
+  background: var(--bg-base);
+}
+
+.content-cell.dimmed {
+  color: var(--text-muted);
+  background: var(--bg-base);
+  font-weight: 400;
+}
+
+/* Exams list */
+.exam-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.exam-card {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-6);
+  background: var(--bg-base);
+  padding: var(--spacing-4);
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(0,0,0,0.05);
+  transition: transform var(--transition-fast);
+}
+
+.exam-card:hover {
+  transform: translateX(4px);
+  box-shadow: var(--shadow-sm);
+}
+
+.exam-date-box {
+  width: 70px;
+  height: 70px;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  border-radius: var(--radius-sm);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-inverse);
+}
+
+.exam-month {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.exam-day {
+  font-size: 1.5rem;
+  font-family: var(--font-heading);
+  font-weight: 700;
+}
+
+.exam-details {
+  flex: 1;
+}
+
+.exam-details h3 {
+  font-size: 1.15rem;
+  margin-bottom: var(--spacing-1);
+}
+
+.badge-pill {
+  padding: var(--spacing-1) var(--spacing-3);
+  border-radius: var(--radius-full);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.badge-pill.warning {
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--status-warning);
+}
