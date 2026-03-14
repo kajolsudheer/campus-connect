@@ -55,6 +55,7 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                suppressHydrationWarning
               />
             </div>
             <button type="submit" className="btn btn-primary login-btn">
@@ -90,6 +91,7 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                suppressHydrationWarning
               />
             </div>
 
@@ -102,12 +104,13 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                suppressHydrationWarning
               />
             </div>
 
             <div className="form-footer">
               <div className="remember-me">
-                <input type="checkbox" id="remember" />
+                <input type="checkbox" id="remember" suppressHydrationWarning />
                 <label htmlFor="remember">Remember me</label>
               </div>
               <a href="#" className="forgot-password" onClick={(e) => { e.preventDefault(); setIsForgotPassword(true); }}>

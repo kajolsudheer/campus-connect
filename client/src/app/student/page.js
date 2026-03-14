@@ -1,10 +1,8 @@
-import './student.css';
-
 'use client';
 
+import './student.css';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import './student.css';
 
 export default function StudentDashboard() {
   const router = useRouter();
